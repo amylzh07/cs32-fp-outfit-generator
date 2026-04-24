@@ -18,3 +18,36 @@ def make_item(name, item_type, color, vibes, weather, image_path=None):
         "weather": weather if isinstance(weather, list) else [weather],
         "image_path": image_path,
     }
+
+
+# sample wardrobe so the app isn't empty on first run
+SAMPLE_WARDROBE = {
+    "white_dress_shirt": make_item(
+        "white_dress_shirt", "top", "white",
+        ["professional", "business_casual", "cocktail"], ["any"]
+    ),
+    "black_jeans": make_item(
+        "black_jeans", "bottom", "black",
+        ["smart_casual", "casual"], ["any"]
+    ),
+    "navy_chinos": make_item(
+        "navy_chinos", "bottom", "navy",
+        ["professional", "business_casual", "smart_casual"], ["any"]
+    ),
+    "black_blazer": make_item(
+        "black_blazer", "layer", "black",
+        ["professional", "business_casual", "cocktail"], ["cold"]
+    ),
+    "grey_tee": make_item(
+        "grey_tee", "top", "grey",
+        ["casual", "smart_casual"], ["any"]
+    ),
+    "white_sneakers": make_item(
+        "white_sneakers", "shoes", "white",
+        ["casual", "smart_casual"], ["any"]
+    ),
+    "black_oxfords": make_item(
+        "black_oxfords", "shoes", "black",
+        ["professional", "business_casual", "cocktail"], ["any"]
+    ),
+}
