@@ -24,30 +24,37 @@ def make_item(name, item_type, color, vibes, weather, image_path=None):
 SAMPLE_WARDROBE = {
     "white_dress_shirt": make_item(
         "white_dress_shirt", "top", "white",
-        ["professional", "business_casual", "cocktail"], ["any"]
+        ["professional", "business_casual", "cocktail"], ["any"],
+        image_path="images/white_dress_shirt.jpg"
     ),
     "black_jeans": make_item(
         "black_jeans", "bottom", "black",
-        ["smart_casual", "casual"], ["any"]
+        ["smart_casual", "casual"], ["any"],
+        image_path="images/black_jeans.jpg"
     ),
     "navy_chinos": make_item(
         "navy_chinos", "bottom", "navy",
-        ["professional", "business_casual", "smart_casual"], ["any"]
+        ["professional", "business_casual", "smart_casual"], ["any"],
+        image_path="images/navy_chinos.jpg"
     ),
     "black_blazer": make_item(
         "black_blazer", "layer", "black",
-        ["professional", "business_casual", "cocktail"], ["cold"]
+        ["professional", "business_casual", "cocktail"], ["cold"],
+        image_path="images/black_blazer.jpg"
     ),
     "grey_tee": make_item(
         "grey_tee", "top", "grey",
-        ["casual", "smart_casual"], ["any"]
+        ["casual", "smart_casual"], ["any"],
+        image_path="images/grey_tee.jpg"
     ),
     "white_sneakers": make_item(
         "white_sneakers", "shoes", "white",
-        ["casual", "smart_casual"], ["any"]
+        ["casual", "smart_casual"], ["any"],
+        image_path="images/white_sneakers.jpg"
     ),
     "black_oxfords": make_item(
         "black_oxfords", "shoes", "black",
-        ["professional", "business_casual", "cocktail"], ["any"]
+        ["professional", "business_casual", "cocktail"], ["any"],
+        image_path="images/black_oxfords.jpg"
     ),
 }

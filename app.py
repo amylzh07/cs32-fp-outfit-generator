@@ -14,9 +14,9 @@ st.title("wardrobe chooser")
 
 
 # ── session state ──────────────────────────────────────────────────────────────
+# CURRENT
 if "wardrobe" not in st.session_state:
     st.session_state.wardrobe = SAMPLE_WARDROBE.copy()
-
 
 # ── helpers ────────────────────────────────────────────────────────────────────
 def image_to_data_url(uploaded_file):
@@ -125,7 +125,6 @@ with tab_wardrobe:
 
             submitted = st.form_submit_button("+ add to wardrobe")
             if submitted and new_name:
-                # Convert uploaded image to a data URL if one was provided
                 img_path = image_to_data_url(uploaded_img) if uploaded_img else None
 
                 item = make_item(
@@ -136,6 +135,7 @@ with tab_wardrobe:
                     weather=new_weather or ["any"],
                     image_path=img_path,
                 )
+
                 st.session_state.wardrobe[new_name] = item
                 st.success(f"added {new_name}!")
 
@@ -237,8 +237,8 @@ with tab_week:
             st.selectbox("weather", weather_opts,  key=f"wthr_{day}", label_visibility="collapsed", index=default_wi)
 
     if st.button("generate week", use_container_width=True):
-        schedule         = {day: st.session_state[f"occ_{day}"]  for day in days if st.session_state[f"occ_{day}"] != "none"}
-        weather_forecast = {day: st.session_state[f"wthr_{day}"] for day in days}
+        schedule         = {day.capitalize(): st.session_state[f"occ_{day}"]  for day in days if st.session_state[f"occ_{day}"] != "none"}
+        weather_forecast = {day.capitalize(): st.session_state[f"wthr_{day}"] for day in days}
         st.session_state.week_plan = suggest_week(
             wardrobe=st.session_state.wardrobe,
             schedule=schedule,
