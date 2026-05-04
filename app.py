@@ -15,7 +15,7 @@ st.markdown("""
 <style>
     /* App background */
     .stApp {
-        background-color: #f5f0ff;
+        background-color: #ffffff;
     }
 
     /* Sidebar */
@@ -25,32 +25,32 @@ st.markdown("""
 
     /* Primary buttons */
     .stButton > button {
-        background-color: #7c5cbf;
-        color: white;
-        border: none;
+        background-color: #ffffff;
+        color: #333333;
+        border: 1px solid #dddddd;
         border-radius: 8px;
     }
     .stButton > button:hover {
-        background-color: #5e40a6;
-        color: white;
+        background-color: #f5f5f5;
+        color: #333333;
     }
 
     /* Tab labels */
     .stTabs [data-baseweb="tab"] {
-        color: #7c5cbf;
+        color: #333333;
         font-weight: 600;
     }
 
     /* Active tab underline */
     .stTabs [data-baseweb="tab-highlight"] {
-        background-color: #7c5cbf;
+        background-color: #333333;
     }
 
     /* Section headers */
     h2, h3 {
-        color: #4a2f8a;
+        color: #111111;
     }
-            
+
     header[data-testid="stHeader"] {
         display: none;
     }
