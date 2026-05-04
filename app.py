@@ -1,6 +1,5 @@
 ## app.py — Streamlit interface for the outfit generator
 
-import io
 import base64
 import streamlit as st
 
@@ -12,6 +11,51 @@ from weather import get_week_weather, get_today_weather
 st.set_page_config(page_title="Wardrobe Chooser", layout="wide")
 st.title("wardrobe chooser")
 
+st.markdown("""
+<style>
+    /* App background */
+    .stApp {
+        background-color: #f5f0ff;
+    }
+
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background-color: #ede8f7;
+    }
+
+    /* Primary buttons */
+    .stButton > button {
+        background-color: #7c5cbf;
+        color: white;
+        border: none;
+        border-radius: 8px;
+    }
+    .stButton > button:hover {
+        background-color: #5e40a6;
+        color: white;
+    }
+
+    /* Tab labels */
+    .stTabs [data-baseweb="tab"] {
+        color: #7c5cbf;
+        font-weight: 600;
+    }
+
+    /* Active tab underline */
+    .stTabs [data-baseweb="tab-highlight"] {
+        background-color: #7c5cbf;
+    }
+
+    /* Section headers */
+    h2, h3 {
+        color: #4a2f8a;
+    }
+            
+    header[data-testid="stHeader"] {
+        display: none;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # ── session state ──────────────────────────────────────────────────────────────
 if "wardrobe" not in st.session_state:
