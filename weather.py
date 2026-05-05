@@ -78,7 +78,7 @@ def get_week_weather(latitude, longitude):
     )
 
     try:
-        with urllib.request.urlopen(url, timeout=5) as response:
+        with urllib.request.urlopen(url, timeout=3) as response:  # was 5
             data = json.loads(response.read().decode())
     except Exception as e:
         return {"error": f"weather fetch failed: {e}"}

@@ -8,22 +8,23 @@ from outfit import suggest_outfit, suggest_week
 from weather import get_week_weather, get_today_weather
 
 
+# ── cached weather fetchers (prevents re-fetching on every Streamlit rerun) ────
+@st.cache_data(ttl=3600)
+def fetch_today(lat, lon):
+    return get_today_weather(lat, lon)
+
+@st.cache_data(ttl=3600)
+def fetch_forecast(lat, lon):
+    return get_week_weather(lat, lon)
+
+
 st.set_page_config(page_title="Wardrobe Chooser", layout="wide")
 st.title("wardrobe chooser")
 
 st.markdown("""
 <style>
-    /* App background */
-    .stApp {
-        background-color: #ffffff;
-    }
-
-    /* Sidebar */
-    [data-testid="stSidebar"] {
-        background-color: #ede8f7;
-    }
-
-    /* Primary buttons */
+    .stApp { background-color: #ffffff; }
+    [data-testid="stSidebar"] { background-color: #ede8f7; }
     .stButton > button {
         background-color: #ffffff;
         color: #333333;
@@ -34,33 +35,18 @@ st.markdown("""
         background-color: #f5f5f5;
         color: #333333;
     }
-
-    /* Tab labels */
-    .stTabs [data-baseweb="tab"] {
-        color: #333333;
-        font-weight: 600;
-    }
-
-    /* Active tab underline */
-    .stTabs [data-baseweb="tab-highlight"] {
-        background-color: #333333;
-    }
-
-    /* Section headers */
-    h2, h3 {
-        color: #111111;
-    }
-
-    header[data-testid="stHeader"] {
-        display: none;
-    }
+    .stTabs [data-baseweb="tab"] { color: #333333; font-weight: 600; }
+    .stTabs [data-baseweb="tab-highlight"] { background-color: #333333; }
+    h2, h3 { color: #111111; }
+    header[data-testid="stHeader"] { display: none; }
 </style>
 """, unsafe_allow_html=True)
 
+
 # ── session state ──────────────────────────────────────────────────────────────
-# CURRENT
 if "wardrobe" not in st.session_state:
     st.session_state.wardrobe = SAMPLE_WARDROBE.copy()
+
 
 # ── helpers ────────────────────────────────────────────────────────────────────
 def image_to_data_url(uploaded_file):
@@ -68,9 +54,9 @@ def image_to_data_url(uploaded_file):
     Convert a Streamlit UploadedFile to a base64 data URL so it can be
     stored in the wardrobe dict and displayed with st.image() later.
     """
-    data   = uploaded_file.read()
-    b64    = base64.b64encode(data).decode()
-    mime   = uploaded_file.type  # e.g. "image/jpeg"
+    data = uploaded_file.read()
+    b64  = base64.b64encode(data).decode()
+    mime = uploaded_file.type
     return f"data:{mime};base64,{b64}"
 
 
@@ -90,7 +76,7 @@ def display_outfit(outfit, compact=False):
 
     Args:
         outfit:  dict returned by suggest_outfit()
-        compact: if True, use a tighter 2-row layout (for the weekly planner)
+        compact: if True, use a tighter layout (for the weekly planner)
     """
     if outfit.get("error"):
         st.warning(outfit["error"])
@@ -100,13 +86,11 @@ def display_outfit(outfit, compact=False):
     items = [(slot, outfit[slot]) for slot in slots if outfit.get(slot)]
 
     if compact:
-        # In the weekly view, show a small image + name per slot
         for slot, item in items:
             src = item.get("image_path") or f"https://placehold.co/80x80/e8e6f0/9e9ab8?text={slot}"
             st.image(src, use_container_width=True)
             st.caption(f"**{slot}** {item['name']}")
     else:
-        # Full layout: one row per slot with image + details
         for slot, item in items:
             img_col, text_col = st.columns([1, 2])
             with img_col:
@@ -116,12 +100,11 @@ def display_outfit(outfit, compact=False):
                 st.markdown(f"**{slot}** — {item['name']}")
                 st.caption(f"{item['color']}  ·  {' · '.join(item['vibes'])}")
 
-    # Color harmony score badge
     score = outfit.get("color_score", 0)
     st.caption(color_score_label(score) + f"  (score: {score:+d})")
 
 
-# ── location sidebar (used by weather API) ─────────────────────────────────────
+# ── location sidebar ───────────────────────────────────────────────────────────
 with st.sidebar:
     st.subheader("📍 your location")
     st.caption("Used to fetch real weather forecasts via Open-Meteo.")
@@ -160,7 +143,6 @@ with tab_wardrobe:
             )
             new_weather = st.multiselect("weather", ["any", "cold", "mild", "sunny"])
 
-            # Image upload — optional, stored as a base64 data URL in the item dict
             uploaded_img = st.file_uploader(
                 "photo (optional)",
                 type=["jpg", "jpeg", "png", "webp"],
@@ -170,7 +152,6 @@ with tab_wardrobe:
             submitted = st.form_submit_button("+ add to wardrobe")
             if submitted and new_name:
                 img_path = image_to_data_url(uploaded_img) if uploaded_img else None
-
                 item = make_item(
                     name=new_name,
                     item_type=new_type,
@@ -179,14 +160,12 @@ with tab_wardrobe:
                     weather=new_weather or ["any"],
                     image_path=img_path,
                 )
-
                 st.session_state.wardrobe[new_name] = item
                 st.success(f"added {new_name}!")
 
     with col_items:
         items = list(st.session_state.wardrobe.values())
 
-        # Apply filters
         if type_filter != "all":
             items = [i for i in items if i["type"] == type_filter]
         if vibe_filter != "any":
@@ -216,8 +195,8 @@ with tab_outfit:
         st.subheader("parameters")
         occasion = st.selectbox("occasion", ["interview", "school", "social", "date", "casual"])
 
-        # Auto-detect today's weather; allow manual override
-        auto_weather    = get_today_weather(latitude, longitude)
+        # fetch_today is cached — won't re-hit the API on every rerun
+        auto_weather    = fetch_today(latitude, longitude)
         weather_options = ["cold", "mild", "sunny"]
         default_idx     = weather_options.index(auto_weather) if auto_weather in weather_options else 1
 
@@ -235,7 +214,7 @@ with tab_outfit:
                 weather=today_weather,
             )
 
-        # Reshuffle button — re-runs suggestion without touching the weekly plan
+        # Reshuffle — re-runs suggestion without touching the weekly plan
         if st.session_state.get("last_outfit") and not st.session_state.last_outfit.get("error"):
             if st.button("🔀 reshuffle", use_container_width=True):
                 st.session_state.last_outfit = suggest_outfit(
@@ -264,9 +243,9 @@ with tab_week:
     occasion_opts = ["none", "interview", "school", "social", "date", "casual"]
     weather_opts  = ["mild", "cold", "sunny"]
 
-    # Fetch the real week forecast once; use as default per-day value
+    # fetch_forecast is cached — won't re-hit the API on every rerun
     with st.spinner("fetching weather forecast…"):
-        real_forecast = get_week_weather(latitude, longitude)
+        real_forecast = fetch_forecast(latitude, longitude)
 
     if "error" in real_forecast:
         st.warning(f"Could not fetch live weather ({real_forecast['error']}). Defaulting to mild.")
@@ -281,8 +260,9 @@ with tab_week:
             st.selectbox("weather", weather_opts,  key=f"wthr_{day}", label_visibility="collapsed", index=default_wi)
 
     if st.button("generate week", use_container_width=True):
-        schedule         = {day.capitalize(): st.session_state[f"occ_{day}"]  for day in days if st.session_state[f"occ_{day}"] != "none"}
-        weather_forecast = {day.capitalize(): st.session_state[f"wthr_{day}"] for day in days}
+        # keys are lowercase to match week_plan lookup below
+        schedule         = {day: st.session_state[f"occ_{day}"]  for day in days if st.session_state[f"occ_{day}"] != "none"}
+        weather_forecast = {day: st.session_state[f"wthr_{day}"] for day in days}
         st.session_state.week_plan = suggest_week(
             wardrobe=st.session_state.wardrobe,
             schedule=schedule,
@@ -299,6 +279,5 @@ with tab_week:
                 if not outfit:
                     st.caption(f"**{day[:3]}** — no event")
                     continue
-
                 st.markdown(f"**{day[:3]}**")
                 display_outfit(outfit, compact=True)
